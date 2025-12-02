@@ -1,0 +1,47 @@
+{% load static %}
+<html>
+<head>
+  <title>Available Rides</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js"></script>
+  <script src="{% static 'js/dapp.js' %}"></script>
+</head>
+<body>
+  <h2>Available Rides</h2>
+  <div id="rides"></div>
+
+  <script>
+    async function loadRides() {
+      const res = await fetch('/api/rides/');
+      const data = await res.json();
+      const container = document.getElementById('rides');
+      if (!data.rides || data.rides.length === 0) {
+        container.innerHTML = '<p>No rides available.</p>';
+        return;
+      }
+      let html = '<table border="1"><tr><th>ID</th><th>Driver</th><th>From</th><th>To</th><th>Date</th><th>Seats</th><th>Fare (tokens)</th><th>Action</th></tr>';
+      data.rides.forEach(r => {
+        html += `<tr>
+          <td>${r.id}</td>
+          <td>${r.driver}</td>
+          <td>${r.fromLocation}</td>
+          <td>${r.toLocation}</td>
+          <td>${r.dateTime}</td>
+          <td>${r.seatsAvailable}</td>
+          <td>${r.fareInTokenUnits}</td>
+          <td><button onclick="payAndBook(${r.id}, '${r.driver}', ${r.fareInTokenUnits})">Pay & Book</button></td>
+        </tr>`;
+      });
+      html += '</table>';
+      container.innerHTML = html;
+    }
+    async function payAndBook(id, driverAddr, fareUnits) {
+      // converts base units to human number for the demo: assume token decimals = 18 and fareUnits is already base-unit
+      // For simplicity, pass fareUnits as human integer to dapp.payDriverAndBook (which multiplies internally)
+      await payDriverAndBook(id, driverAddr, Number(fareUnits));
+    }
+    loadRides();
+  </script>
+</body>
+</html>

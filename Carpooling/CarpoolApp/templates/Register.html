@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Carpool DApp</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">Carpool DApp</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="text-center">User Registration</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- MetaMask Connection Status -->
+                        <div id="walletInfo" class="mb-4">
+                            <div class="alert alert-info">
+                                <strong>MetaMask Required</strong><br>
+                                Please connect your MetaMask wallet to register
+                            </div>
+                        </div>
+
+                        {% if data %}
+                        <div class="alert alert-info">{{ data }}</div>
+                        {% endif %}
+
+                        {% if wallet_info %}
+                        <div class="alert alert-success mt-3">
+                            <h6>Wallet Created Successfully!</h6>
+                            <p>{{ wallet_info }}</p>
+                            <small class="text-muted">You can now login and start using the carpool service.</small>
+                        </div>
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'Signup' %}" id="registrationForm">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control" name="username" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" name="password" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Contact Number</label>
+                                    <input type="text" class="form-control" name="contact" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Vehicle Details (Drivers only)</label>
+                                <input type="text" class="form-control" name="vehicle" placeholder="e.g., Toyota Camry 2020">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">User Type</label>
+                                <select class="form-select" name="type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Passenger">Passenger</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Hidden wallet address field -->
+                            <input type="hidden" name="wallet_address" id="walletAddressField">
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success" id="submitButton" disabled>
+                                    🔗 Connect MetaMask First
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Manual Connect Button -->
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="connectMetaMaskForRegister()">
+                                🔗 Connect MetaMask
+                            </button>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <a href="{% url 'Login' %}">Already have an account? Login here</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let web3;
+    let userWalletAddress = '';
+
+    // Connect MetaMask on page load for registration
+    async function connectMetaMaskForRegister() {
+        if (typeof window.ethereum !== 'undefined') {
+            web3 = new Web3(window.ethereum);
+            try {
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                userWalletAddress = accounts[0];
+                
+                // Show connected wallet info
+                document.getElementById('walletInfo').innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✅ MetaMask Connected!</strong><br>
+                        Wallet: ${userWalletAddress}<br>
+                        <small>Network: ${await getNetworkName()}</small>
+                    </div>
+                `;
+                
+                // Update hidden field with wallet address
+                document.getElementById('walletAddressField').value = userWalletAddress;
+                
+                // Enable submit button
+                document.getElementById('submitButton').disabled = false;
+                document.getElementById('submitButton').innerHTML = 'Register with MetaMask';
+                
+                // Add CPT token to MetaMask automatically
+                await addTokenToMetaMask();
+                
+            } catch (error) {
+                console.error('User denied account access:', error);
+                document.getElementById('walletInfo').innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>MetaMask Connection Failed</strong><br>
+                        Please allow account access to continue
+                    </div>
+                `;
+            }
+        } else {
+            document.getElementById('walletInfo').innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>MetaMask Not Found</strong><br>
+                    Please install <a href="https://metamask.io/" target="_blank">MetaMask</a> to use this application.
+                </div>
+            `;
+        }
+    }
+
+    // Get network name
+    async function getNetworkName() {
+        try {
+            const chainId = await web3.eth.getChainId();
+            switch (chainId) {
+                case 1: return 'Ethereum Mainnet';
+                case 3: return 'Ropsten Testnet';
+                case 4: return 'Rinkeby Testnet';
+                case 5: return 'Goerli Testnet';
+                case 42: return 'Kovan Testnet';
+                case 5777: return 'Ganache Local';
+                default: return `Unknown Network (${chainId})`;
+            }
+        } catch (error) {
+            return 'Unknown Network';
+        }
+    }
+
+    // Add token to MetaMask
+    async function addTokenToMetaMask() {
+        try {
+            // In a real app, you'd fetch this from your backend
+            const tokenAddress = 'YOUR_CARPOOL_TOKEN_ADDRESS'; // Replace with actual token address
+            const tokenSymbol = 'CPT';
+            const tokenDecimals = 18;
+            const tokenImage = 'https://your-app.com/token-icon.png';
+
+            const wasAdded = await window.ethereum.request({
+                method: 'wallet_watchAsset',
+                params: {
+                    type: 'ERC20',
+                    options: {
+                        address: tokenAddress,
+                        symbol: tokenSymbol,
+                        decimals: tokenDecimals,
+                        image: tokenImage,
+                    },
+                },
+            });
+
+            if (wasAdded) {
+                console.log('CPT token added to MetaMask');
+            }
+        } catch (error) {
+            console.error('Error adding token to MetaMask:', error);
+        }
+    }
+
+    // Connect MetaMask when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        connectMetaMaskForRegister();
+    });
+
+    // Validate form submission
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        if (!userWalletAddress) {
+            e.preventDefault();
+            alert('Please connect MetaMask before registering');
+            connectMetaMaskForRegister();
+        }
+    });
+    </script>
+</body>
+</html>

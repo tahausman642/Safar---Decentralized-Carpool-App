@@ -1,0 +1,54 @@
+{% load static %}
+<html>
+<head>
+<title>Peer to Peer Carpooling using Blockchain </title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
+<script>
+setInterval(function () { checkUpdate(); }, 5000);
+function checkUpdate() {
+    var request = new XMLHttpRequest();
+	request.open("GET", "http://127.0.0.1:8000/DriverWaiting?mytext=wait");
+	request.onreadystatechange = function() {
+    if(this.readyState === 4 && this.status === 200) {
+	    data = this.responseText
+		document.getElementById("result").innerHTML = data;
+        }
+    };
+	request.send();
+}
+</script>
+</head>
+<body>
+<div id="wrapper">
+	<div id="header">
+		<div id="logo">
+			<center><font size="4" color="yellow">Peer to Peer Carpooling using Blockchain</font></center>
+		</div>
+		<div id="slogan">
+			
+		</div>
+	</div>
+	<div id="menu">
+		<ul><center>
+	  <li><a href="{% url 'DriverLocation' %}">Enter Your Location</a></li>	
+	  <li><a href="{% url 'StartRide' %}">Start Ride</a></li>		
+	  <li><a href="{% url 'RideComplete' %}">Ride Complete</a></li>		
+      <li><a href="{% url 'index' %}">Logout</a></li>		
+		</center></ul>
+		<br class="clearfix" />
+	</div>
+	<div id="splash">
+		<img class="pic" src="{% static 'images/investor.jpg' %}" width="870" height="230" alt="" />
+	</div>
+	<br/>
+	<center><font size="" color="black">{{ data|safe }}
+
+	 <div id="result">
+        
+    </div>
+	<br/><br/><br/><br/><br/>
+	</table>
+	<br/><br/><br/><br/><br/>
+</body>
+</html>

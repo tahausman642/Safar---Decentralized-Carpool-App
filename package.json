@@ -1,0 +1,22 @@
+
+{
+  "name": "carpool-dapp-blockchain",
+  "version": "1.0.0",
+  "description": "Smart contracts for Carpool DApp",
+  "main": "truffle-config.js",
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "test": "truffle test",
+    "ganache": "ganache-cli -d -p 9545 --chainId 5777"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.0",
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "truffle": "^5.8.4",
+    "ganache-cli": "^6.12.2"
+  }
+}
