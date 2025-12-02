@@ -1,4 +1,4 @@
-# 🚗 Carpool DApp - Decentralized Ride-Sharing Platform
+# 🚗 Safar - Decentralized Ride-Sharing Platform
 
 A complete decentralized carpooling application built on Ethereum blockchain with Django backend.
 
