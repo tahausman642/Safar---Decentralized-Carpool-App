@@ -2,8 +2,6 @@
 
 A complete decentralized carpooling application built on Ethereum blockchain with Django backend.
 
-![Carpool DApp Screenshot](screenshot.png)
-
 ## ✨ Features
 
 ### For Passengers
