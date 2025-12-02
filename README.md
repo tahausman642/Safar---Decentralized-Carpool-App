@@ -46,7 +46,7 @@ A complete decentralized carpooling application built on Ethereum blockchain wit
 
 1. **Clone the Repository**
 
-git clone https://github.com/yourusername/carpool-dapp.git
+git clone https://github.com/yourusername/carpool-dapp.git](https://github.com/tahausman642/Safar---Decentralized-Carpool-App.git
 cd carpool-dapp
 Backend Setup
 
