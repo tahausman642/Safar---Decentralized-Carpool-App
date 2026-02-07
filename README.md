@@ -1,4 +1,4 @@
-Credits: @ashirkhan544
+Collaborative project with @ashirkhan544
 # 🚗 Safar - Decentralized Ride-Sharing Platform
 
 A complete decentralized carpooling application built on Ethereum blockchain with Django backend.
